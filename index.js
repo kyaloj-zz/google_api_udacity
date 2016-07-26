@@ -130,6 +130,9 @@ function initMap() {
   document.getElementById('zoom-to-area').addEventListener('click', function() {
     zoomToArea();
   });
+  document.getElementById('search-within-time').addEventListener('click', function() {
+    searchWithinTime();
+  });
   
   drawingManager.addListener('overlaycomplete', function(event) {
     
@@ -269,3 +272,64 @@ function zoomToArea() {
   }
   
 }
+
+function searchWithinTime() {
+    var distanceMatrixService = new google.maps.DistanceMatrixService;
+    var address = document.getElementById('search-within-time-text').value;
+    if (address == '') {
+      window.alert('You must enter an address.');
+    } else {
+      hideListings();
+      var origins = [];
+      for (var i = 0; i < markers.length; i++) {
+        origins[i] = markers[i].position;
+      }
+      var destination = address;
+      var mode = document.getElementById('mode').value;
+      distanceMatrixService.getDistanceMatrix({
+        origins: origins,
+        destinations: [destination],
+        travelMode: google.maps.TravelMode[mode],
+        unitSystem: google.maps.UnitSystem.IMPERIAL,
+      }, function(response, status) {
+        if (status !== google.maps.DistanceMatrixStatus.OK) {
+          window.alert('Error was: ' + status);
+        } else {
+          displayMarkersWithinTime(response);
+        }
+      });
+    }
+  }
+  function displayMarkersWithinTime(response) {
+    var maxDuration = document.getElementById('max-duration').value;
+    var origins = response.originAddresses;
+    var destinations = response.destinationAddresses;
+    var atLeastOne = false;
+    for (var i = 0; i < origins.length; i++) {
+      var results = response.rows[i].elements;
+      for (var j = 0; j < results.length; j++) {
+        var element = results[j];
+        if (element.status === "OK") {
+          var distanceText = element.distance.text;
+          var duration = element.duration.value / 60;
+          var durationText = element.duration.text;
+          alert(durationText);
+          if (duration <= maxDuration) {
+            markers[i].setMap(map);
+            atLeastOne = true;
+            var infowindow = new google.maps.InfoWindow({
+              content: durationText + ' away, ' + distanceText
+            });
+            infowindow.open(map, markers[i]);
+            markers[i].infowindow = infowindow;
+            google.maps.event.addListener(markers[i], 'click', function() {
+              this.infowindow.close();
+            });
+          }
+        }
+      }
+    }
+    if (!atLeastOne) {
+      window.alert('We could not find any locations within that distance!');
+    }
+  }
