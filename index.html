@@ -10,6 +10,9 @@
         <div>
           <input id="show-listings" type="button" value="Show Listings">
           <input id="hide-listings" type="button" value="Hide Listings">
+          <hr>
+          <span class="text"> Draw a shape to search within it for homes!</span>
+          <input id="toggle-drawing"  type="button" value="Drawing Tools">
         </div>
       </div>
       <div id="map"></div>
@@ -17,7 +20,7 @@
     <script type="text/javascript" src="index.js"></script>
 
     <script async defer 
-	  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpue6nMkQccPrHEWC3t_Qgysog0am15Mw&libraries=geometry&callback=initMap"
+	  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpue6nMkQccPrHEWC3t_Qgysog0am15Mw&libraries=geometry,drawing&callback=initMap"
       type="text/javascript"></script>
   </body>
 </html>
