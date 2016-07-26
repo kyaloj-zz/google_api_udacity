@@ -127,6 +127,9 @@ function initMap() {
   document.getElementById('toggle-drawing').addEventListener('click', function() {
     toggleDrawing(drawingManager);
   });
+  document.getElementById('zoom-to-area').addEventListener('click', function() {
+    zoomToArea();
+  });
   
   drawingManager.addListener('overlaycomplete', function(event) {
     
@@ -228,9 +231,7 @@ function toggleDrawing(drawingManager) {
     drawingManager.setMap(map);
   }
 }
-// This function hides all markers outside the polygon,
-// and shows only the ones within it. This is so that the
-// user can specify an exact area of search.
+
 function searchWithinPolygon() {
   for (var i = 0; i < markers.length; i++) {
     if (google.maps.geometry.poly.containsLocation(markers[i].position, polygon)) {
@@ -242,4 +243,29 @@ function searchWithinPolygon() {
 
   var area = google.maps.geometry.spherical.computeArea(polygon.getPath());
   alert(area + " M^2");
+}
+
+function zoomToArea() {
+  var geocoder = new google.maps.Geocoder();
+  var address = document.getElementById('zoom-to-area-text').value;
+  
+  if (!address) {
+    alert("address cant be blank");
+  } else {
+
+    geocoder.geocode(
+    { address: address,
+      componentRestrictions: {locality: 'New York'}
+    }, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        map.setCenter(results[0].geometry.location);
+        map.setZoom(15);
+      } else {
+        window.alert('We could not find that location - try entering a more' +
+            ' specific place.');
+      }
+    });
+
+  }
+  
 }
